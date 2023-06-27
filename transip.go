@@ -5,11 +5,11 @@ import (
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
-	libdnstemplate "github.com/libdns/template"
+	"github.com/libdns/transip"
 )
 
 // Provider lets Caddy read and manipulate DNS records hosted by this DNS provider.
-type Provider struct{ *libdnstemplate.Provider }
+type Provider struct{ *transip.Provider }
 
 func init() {
 	caddy.RegisterModule(Provider{})
@@ -18,16 +18,17 @@ func init() {
 // CaddyModule returns the Caddy module information.
 func (Provider) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID:  "dns.providers.template",
-		New: func() caddy.Module { return &Provider{new(libdnstemplate.Provider)} },
+		ID:  "dns.providers.transip",
+		New: func() caddy.Module { return &Provider{new(transip.Provider)} },
 	}
 }
 
 // TODO: This is just an example. Useful to allow env variable placeholders; update accordingly.
 // Provision sets up the module. Implements caddy.Provisioner.
 func (p *Provider) Provision(ctx caddy.Context) error {
+	p.Provider.AccountName = caddy.NewReplacer().ReplaceAll(p.Provider.APIToken, "")
 	p.Provider.APIToken = caddy.NewReplacer().ReplaceAll(p.Provider.APIToken, "")
-	return fmt.Errorf("TODO: not implemented")
+	return nil
 }
 
 // TODO: This is just an example. Update accordingly.
